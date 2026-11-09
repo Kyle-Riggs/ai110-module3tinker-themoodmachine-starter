@@ -9,9 +9,13 @@ This class starts with very simple logic:
   - Convert that score into a mood label
 """
 
+import re
 from typing import List, Dict, Tuple, Optional
 
 from dataset import POSITIVE_WORDS, NEGATIVE_WORDS
+
+# Words that flip the polarity of the sentiment word right after them.
+NEGATORS = {"not", "no", "never", "dont", "don't", "isnt", "isn't", "wasnt", "wasn't", "cant", "can't", "wont", "won't", "didnt", "didn't", "aint", "ain't"}
 
 
 class MoodAnalyzer:
@@ -53,7 +57,11 @@ class MoodAnalyzer:
           - Normalize repeated characters ("soooo" -> "soo")
         """
         cleaned = text.strip().lower()
-        tokens = cleaned.split()
+        # Collapse 3+ repeated characters down to 2 ("soooo" -> "soo").
+        cleaned = re.sub(r"(.)\1{2,}", r"\1\1", cleaned)
+        # Words (keeping apostrophes, e.g. "i'm") or any single non-space,
+        # non-word symbol, which keeps emojis/punctuation as their own tokens.
+        tokens = re.findall(r"[a-z0-9]+(?:'[a-z]+)*|[^\w\s]", cleaned)
 
         return tokens
 
@@ -75,15 +83,40 @@ class MoodAnalyzer:
           - Give some words higher weights than others (for example "hate" < "annoyed")
           - Treat emojis or slang (":)", "lol", "💀") as strong signals
         """
-        # TODO: Implement this method.
-        #   1. Call self.preprocess(text) to get tokens.
-        #   2. Loop over the tokens.
-        #   3. Increase the score for positive words, decrease for negative words.
-        #   4. Return the total score.
-        #
-        # Hint: if you implement negation, you may want to look at pairs of tokens,
-        # like ("not", "happy") or ("never", "fun").
-        pass
+        score, _, _ = self._analyze(text)
+        return score
+
+    def _analyze(self, text: str) -> Tuple[int, List[str], List[str]]:
+        """
+        Score the text and return (score, positive_hits, negative_hits).
+
+        Enhancement: simple negation handling. If a negator ("not", "never",
+        "no", "don't", ...) appears right before a sentiment word, the word's
+        polarity is flipped ("not happy" counts as negative).
+        """
+        tokens = self.preprocess(text)
+        score = 0
+        positive_hits: List[str] = []
+        negative_hits: List[str] = []
+
+        for i, token in enumerate(tokens):
+            negated = i > 0 and tokens[i - 1] in NEGATORS
+            if token in self.positive_words:
+                is_positive = not negated
+            elif token in self.negative_words:
+                is_positive = negated
+            else:
+                continue
+
+            label = f"not {token}" if negated else token
+            if is_positive:
+                score += 1
+                positive_hits.append(label)
+            else:
+                score -= 1
+                negative_hits.append(label)
+
+        return score, positive_hits, negative_hits
 
     # ---------------------------------------------------------------------
     # Label prediction
@@ -105,12 +138,15 @@ class MoodAnalyzer:
         Just remember that whatever labels you return should match the labels
         you use in TRUE_LABELS in dataset.py if you care about accuracy.
         """
-        # TODO: Implement this method.
-        #   1. Call self.score_text(text) to get the numeric score.
-        #   2. Return "positive" if the score is above 0.
-        #   3. Return "negative" if the score is below 0.
-        #   4. Return "neutral" otherwise.
-        pass
+        score, positive_hits, negative_hits = self._analyze(text)
+        if score > 0:
+            return "positive"
+        if score < 0:
+            return "negative"
+        # Score is 0: either signals cancelled out (mixed) or there were none.
+        if positive_hits and negative_hits:
+            return "mixed"
+        return "neutral"
 
     # ---------------------------------------------------------------------
     # Explanations (optional but recommended)
@@ -132,20 +168,7 @@ class MoodAnalyzer:
         The current implementation is a placeholder so the code runs even
         before you implement it.
         """
-        tokens = self.preprocess(text)
-
-        positive_hits: List[str] = []
-        negative_hits: List[str] = []
-        score = 0
-
-        for token in tokens:
-            if token in self.positive_words:
-                positive_hits.append(token)
-                score += 1
-            if token in self.negative_words:
-                negative_hits.append(token)
-                score -= 1
-
+        score, positive_hits, negative_hits = self._analyze(text)
         return (
             f"Score = {score} "
             f"(positive: {positive_hits or '[]'}, "
