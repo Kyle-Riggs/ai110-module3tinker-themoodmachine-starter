@@ -23,6 +23,17 @@ POSITIVE_WORDS = [
     "chill",
     "relaxed",
     "amazing",
+    # Added in Part 3: emotion words, unambiguous slang, clear emojis
+    "proud",
+    "hopeful",
+    "worth",
+    "pleased",
+    "stoked",
+    "fire",
+    "lit",
+    "yay",
+    "🎉",
+    "🔥",
 ]
 
 NEGATIVE_WORDS = [
@@ -36,6 +47,14 @@ NEGATIVE_WORDS = [
     "stressed",
     "hate",
     "boring",
+    # Added in Part 3: emotion words, unambiguous slang, clear emojis
+    "exhausted",
+    "sucks",
+    "worst",
+    "mediocre",
+    "mid",
+    "😞",
+    "😡",
 ]
 
 # ---------------------------------------------------------------------
