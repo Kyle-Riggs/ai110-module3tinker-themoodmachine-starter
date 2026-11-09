@@ -77,6 +77,14 @@ SAMPLE_POSTS = [
     "I'm fine 🙂",
     "ngl today kinda sucks 😞",
     "Exhausted but the project finally shipped, worth it",
+    "Can't believe I passed the exam, so relieved",
+    "Another meeting that could've been an email 🙄",
+    "Dinner was okay, nothing special",
+    "Missing my family today but the call helped",
+    "bro this game is ass",
+    "Best day ever, everything went right!",
+    "The bus arrives at 8:15",
+    "Not gonna lie, I'm kinda dreading tomorrow",
 ]
 
 # Human labels for each post above.
@@ -100,6 +108,14 @@ TRUE_LABELS = [
     "negative",  # "I'm fine 🙂" (ambiguous; masked unhappiness)
     "negative",  # "ngl today kinda sucks 😞"
     "mixed",     # "Exhausted but the project finally shipped, worth it"
+    "positive",  # "Can't believe I passed the exam, so relieved"
+    "negative",  # "Another meeting that could've been an email 🙄" (sarcasm-ish)
+    "neutral",   # "Dinner was okay, nothing special"
+    "mixed",     # "Missing my family today but the call helped"
+    "negative",  # "bro this game is ass" (slang)
+    "positive",  # "Best day ever, everything went right!"
+    "neutral",   # "The bus arrives at 8:15"
+    "negative",  # "Not gonna lie, I'm kinda dreading tomorrow"
 ]
 
 # TODO: Add 5-10 more posts and labels.
